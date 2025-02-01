@@ -1,0 +1,41 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+  - task: Maven@3
+    displayName: 'Build with Maven'
+    inputs:
+      mavenPomFile: 'pom.xml'
+      goals: 'clean package'
+
+  - task: CopyFiles@2
+    displayName: 'Copy JAR file'
+    inputs:
+      SourceFolder: 'target'
+      Contents: '**/*.jar'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact'
+    inputs:
+      pathToPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'drop'
+
+  - task: AzureWebApp@1
+    displayName: 'Deploy to Azure App Service'
+    inputs:
+      azureSubscription: 'springboot-backendapp-connection'
+      appName: 'springboot-backendapp'
+      appType: 'webApp'
+      package: '$(Build.ArtifactStagingDirectory)/*.jar'
+
