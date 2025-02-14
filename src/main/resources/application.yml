@@ -1,0 +1,23 @@
+resilience4j:
+  circuitbreaker:
+    instances:
+      default:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slidingWindowSize: 100
+        permittedNumberOfCallsInHalfOpenState: 10
+        waitDurationInOpenState: 10000ms
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+
+  ratelimiter:
+    instances:
+      default:
+        limitForPeriod: 10
+        limitRefreshPeriod: 1s
+        timeoutDuration: 500ms
+
+  bulkhead:
+    instances:
+      userApi:
+        maxConcurrentCalls: 5
+        maxWaitDuration: 2s

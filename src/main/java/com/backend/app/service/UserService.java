@@ -6,6 +6,9 @@ import com.backend.app.entity.User;
 import com.backend.app.exception.ExternalApiException;
 import com.backend.app.exception.InvalidSortingOrderException;
 import com.backend.app.exception.UserNotFoundException;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +46,9 @@ public class UserService {
      * Load users from the external API and save them in the H2 database.
      */
     @Transactional
-    @Retryable(value = { ExternalApiException.class }, maxAttempts = 3, backoff = @Backoff(delay = 2000))
+    @Retry(name = "loadUsersRetry", fallbackMethod = "loadUsersFallback")
+    @CircuitBreaker(name = "userApiCircuitBreaker", fallbackMethod = "loadUsersFallback")
+    @Bulkhead(name = "userApiBulkhead")
     @Cacheable(value = "users", key = "#root.method.name")
     public void loadUsers() throws ExternalApiException {
         try {
@@ -96,6 +101,12 @@ public class UserService {
             logger.debug("Failed to fetch and load users from the external API.", e);
             throw new ExternalApiException("Failed to fetch and load users from the external API.", e);
         }
+    }
+    /**
+     * **Fallback Method**: Called when Circuit Breaker opens or retries fail
+     */
+    public void loadUsersFallback(Throwable throwable) {
+        logger.error("Fallback triggered: Could not fetch users from API. Cause: {}", throwable.getMessage());
     }
 
     /**

@@ -4,38 +4,35 @@
 # https://aka.ms/yaml
 
 trigger:
-  branches:
-    include:
-      - main
+  - main
 
 pool:
   vmImage: 'ubuntu-latest'
 
+variables:
+  IMAGE_NAME: 'springboot-app'
+  ACR_NAME: 'myacr0065'
+  RESOURCE_GROUP: 'myResourceGroup'
+  CLUSTER_NAME: 'myAKSCluster'
+  NAMESPACE: 'default'
+
 steps:
   - task: Maven@3
-    displayName: 'Build with Maven'
     inputs:
       mavenPomFile: 'pom.xml'
       goals: 'clean package'
+      publishJUnitResults: false
 
-  - task: CopyFiles@2
-    displayName: 'Copy JAR file'
+  - script: |
+      docker build -t $(ACR_NAME).azurecr.io/$(IMAGE_NAME):latest .
+      az acr login --name $(ACR_NAME)
+      docker push $(ACR_NAME).azurecr.io/$(IMAGE_NAME):latest
+    displayName: 'Build and Push Docker Image'
+
+  - task: KubernetesManifest@1
     inputs:
-      SourceFolder: 'target'
-      Contents: '**/*.jar'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
-
-  - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact'
-    inputs:
-      pathToPublish: '$(Build.ArtifactStagingDirectory)'
-      artifactName: 'drop'
-
-  - task: AzureWebApp@1
-    displayName: 'Deploy to Azure App Service'
-    inputs:
-      azureSubscription: 'springboot-backendapp-connection'
-      appName: 'springboot-backendapp'
-      appType: 'webApp'
-      package: '$(Build.ArtifactStagingDirectory)/*.jar'
-
+      action: 'deploy'
+      kubernetesServiceConnection: 'my-k8s-connection'
+      namespace: '$(NAMESPACE)'
+      manifests: 'deployment.yaml'
+    displayName: 'Deploy to AKS'
