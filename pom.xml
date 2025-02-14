@@ -131,6 +131,35 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
+        <!-- Resilience4j Spring Boot 3 Integration -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot3</artifactId>
+            <version>2.3.0</version> <!-- Make sure to use the latest version -->
+        </dependency>
+
+        <!-- Resilience4j CircuitBreaker -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-circuitbreaker</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
+        <!-- Resilience4j RateLimiter -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-ratelimiter</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
+        <!-- Resilience4j Retry (if you need retry functionality) -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-retry</artifactId>
+            <version>2.3.0</version>
+        </dependency>
+
+
 
     </dependencies>
 
