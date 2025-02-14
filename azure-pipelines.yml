@@ -1,7 +1,5 @@
 # Starter pipeline
 # Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
 
 trigger:
   - main
@@ -17,18 +15,29 @@ variables:
   NAMESPACE: 'default'
 
 steps:
+  # ✅ Add Java 17 Setup
+  - task: UseJavaVersion@1
+    inputs:
+      versionSpec: '17'
+      jdkArchitecture: 'x64'
+    displayName: 'Set up Java 17'
+
+  # ✅ Run Maven Build
   - task: Maven@3
     inputs:
       mavenPomFile: 'pom.xml'
       goals: 'clean package'
       publishJUnitResults: false
+    displayName: 'Maven Build'
 
+  # ✅ Build and Push Docker Image
   - script: |
       docker build -t $(ACR_NAME).azurecr.io/$(IMAGE_NAME):latest .
       az acr login --name $(ACR_NAME)
       docker push $(ACR_NAME).azurecr.io/$(IMAGE_NAME):latest
     displayName: 'Build and Push Docker Image'
 
+  # ✅ Deploy to AKS
   - task: KubernetesManifest@1
     inputs:
       action: 'deploy'
