@@ -1,5 +1,4 @@
 # Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
 
 trigger:
   - main
@@ -15,12 +14,13 @@ variables:
   NAMESPACE: 'default'
 
 steps:
-  # ✅ Add Java 17 Setup
-  - task: UseJavaVersion@1
+  # ✅ Install Java 17 (Fixed Issue)
+  - task: JavaToolInstaller@0
     inputs:
       versionSpec: '17'
       jdkArchitecture: 'x64'
-    displayName: 'Set up Java 17'
+      jdkSource: 'PreInstalled'
+    displayName: 'Install Java 17'
 
   # ✅ Run Maven Build
   - task: Maven@3
