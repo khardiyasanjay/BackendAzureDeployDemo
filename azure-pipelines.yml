@@ -42,5 +42,5 @@ steps:
       action: 'deploy'
       kubernetesServiceConnection: 'my-k8s-connection'
       namespace: '$(NAMESPACE)'
-      manifests: 'deployment.yaml'
+      manifests: 'deployment.yml'
     displayName: 'Deploy to AKS'
