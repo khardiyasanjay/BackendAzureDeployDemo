@@ -12,7 +12,7 @@ variables:
   NAMESPACE: 'default'
 
 steps:
-  - task: UseJavaVersion@1
+  - task: JavaToolInstaller@0
     inputs:
       versionSpec: '17'
       jdkArchitecture: 'x64'
