@@ -28,11 +28,14 @@ steps:
       goals: 'clean package'
       publishJUnitResults: false
 
-  - script: |
-      docker build -t $(ACR_NAME).azurecr.io/$(IMAGE_NAME):latest .
-      az acr login --name $(ACR_NAME)
-      docker push $(ACR_NAME).azurecr.io/$(IMAGE_NAME):latest
+  - task: Docker@2
     displayName: 'Build and Push Docker Image'
+    inputs:
+      command: 'buildAndPush'
+      repository: '$(IMAGE_NAME)'
+      dockerfile: 'Dockerfile'
+      containerRegistry: 'my-acr-connection'
+      tags: 'latest'
 
   - task: KubernetesManifest@1
     inputs:
